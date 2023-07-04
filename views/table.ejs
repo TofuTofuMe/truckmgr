@@ -1,0 +1,55 @@
+<table class="table is-bordered has-text-centered">
+    <thead>
+        <% if (table == 'trucks') { %>
+            <tr>
+                <!-- <th>Select</th> -->
+                <th>Plate No.</th>
+                <th>Year Model</th>
+                <th>MV File No.</th>
+                <th>OR No.</th>
+                <th>Make</th>
+                <th>Type</th>
+            </tr>
+        <% }; %>
+        <% if (table == 'trips') { %>
+            <tr>
+                <!-- <th>Select</th> -->
+                <th>Plate No.</th>
+                <th>Date</th>
+                <th>Account</th>
+                <th>Route</th>
+                <th>Origin</th>
+                <th>Destination</th>
+            </tr>
+        <% }; %>
+    </thead>
+    <tbody id="table-body">
+    </tbody>
+</table>
+<script>
+    var vehicle_array = [];
+    var vehicle_row = 0;
+    document.addEventListener('DOMContentLoaded', function(event) {
+        vehicle_data = new Request('/trucks/list_trucks', {method: 'GET'});
+        table_body = document.querySelector('#table-body');
+        fetch(vehicle_data).then((response) => {
+            response.json().then(data => {
+                vehicle_array = data;
+
+                vehicle_array.forEach(vehicle => {
+                    const table_row = document.createElement('tr');
+                    for (const data in vehicle) {
+                        const table_data = document.createElement('td');
+                        table_data.setAttribute('id', `${data}-${vehicle_row}`);
+                        table_data.textContent = vehicle[data];
+                        table_row.appendChild(table_data);
+                    }
+                    table_row.setAttribute('id', `vehicle-${vehicle_row}`);
+                    table_body.appendChild(table_row);
+                    vehicle_row++;
+                })
+            })
+        });
+        
+    })
+</script>

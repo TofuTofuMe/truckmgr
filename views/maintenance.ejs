@@ -1,0 +1,82 @@
+<html>
+    <head>
+        <title>TruckMgr - Maintenance</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="bulma.min.css">
+        <link rel="script" href="index.js">
+    </head>
+    <body>
+        <%- include('navbar.ejs') %>
+
+        <section class="section">
+            <div class="container has-text-centered is-mobile">
+                <div class="columns">
+                    <div class="column is-one-third is-mobile">
+                        <div class="box">
+                            <h3 class="title is-5 has-text-left">Maintenance</h3>
+                            <div class="box">
+                                <form class="form" action="/trucks/update_truck" method="post">
+                                    <div class="field">
+                                        <label class="label has-text-left">Plate No.</label>
+                                        <div class="control">
+                                            <input class="input" type="text" placeholder="Plate No.">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Date</label>
+                                        <div class="control">
+                                            <input class="input" type="text" placeholder="Date">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Job Order No.</label>
+                                        <div class="control">
+                                            <input class="input" type="text" placeholder="Job Order No.">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Description</label>
+                                        <div class="control">
+                                            <input class="input" type="text" placeholder="Description">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Notes</label>
+                                        <div class="control">
+                                            <input class="input" type="text" placeholder="Notes">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">PMS</label>
+                                        <div class="control">
+                                            <input class="input" type="text" placeholder="PMS">
+                                        </div>
+                                    </div>
+                                    <div class="field is-grouped is-grouped-center has-text-center">
+                                        <label class="label"> </label>
+                                        <div class="control">
+                                            <input class="button is-success" type="submit" value="Update">
+                                        </div>
+                                        <label class="label"> </label>
+                                        <div class="control">
+                                            <input class="button is-danger is-light" type="submit" value="Drop">
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column has-text-centered is-mobile">
+                        <div class="box">
+                            <%- include('table.ejs') %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>

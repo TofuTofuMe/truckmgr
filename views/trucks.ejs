@@ -1,0 +1,123 @@
+<html>
+    <head>
+        <title>TruckMgr - Trucks</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="bulma.min.css">
+        <link rel="script" href="index.js">
+    </head>
+    <body>
+        <%- include('navbar.ejs') %>
+        <section class="section">
+            <div class="container has-text-centered is-mobile">
+                <div class="columns">
+                    <div class="column is-one-third is-mobile">
+                        <div class="box">
+                            <h3 class="title is-5 has-text-left">Trucks</h3>
+                            <div class="box">
+                                <form class="form" action="/trucks/update_truck" method="post">
+                                    <div class="field">
+                                        <label class="label" id="test">Select Truck</label>
+                                        <div class="control">
+                                            <div class="select">
+                                                <select name="truck_selected" id="truck_select">
+                                                    <option value="new">New Truck</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Plate No.</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="plate_number" id="plate_number" placeholder="Plate No.">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Year Model</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="year_model" id="year_model" placeholder="Year Model">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">MV File No.</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="mv_filenumber" id="mv_filenumber" placeholder="MV File No.">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">OR No.</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="or_number" id="or_number" placeholder="OR Number">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Make</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="make" id="make" placeholder="Make">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Type</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="type" id="type" placeholder="Type">
+                                        </div>
+                                    </div>
+                                    <div class="field is-grouped is-grouped-center has-text-center">
+                                        <label class="label"> </label>
+                                        <div class="control">
+                                            <input class="button is-success" type="submit" value="Update">
+                                        </div>
+                                        <label class="label"> </label>
+                                        <div class="control">
+                                            <input class="button is-danger is-light" type="submit" formaction="/trucks/drop_truck" value="Drop">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column has-text-centered is-mobile">
+                        <div class="box">
+                            <%- include('table.ejs') %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+        <script>
+            const selector = document.getElementById('truck_select');
+            var row = 0;
+
+            selector.addEventListener('click', () => {
+                const plates = document.querySelectorAll('[id*=plate_number]');
+                selector.replaceChildren();
+                selector.appendChild(new Option('New Truck', 'new'));
+
+                plates.forEach((plate, plate_index) => {
+                    if (plate.innerHTML.trim() !== '') {
+                    var option = document.createElement('option');
+                    option.setAttribute('value', plate_index);
+                    option.textContent = plate.innerHTML;
+                    selector.appendChild(option);
+                    }
+                })
+            }, {once: true})
+            selector.addEventListener("change", (event) => {
+                const form_fields = ['plate_number', 'year_model', 'mv_filenumber', 'or_number', 'make', 'type'];
+                const selected = selector.value;
+                
+                form_fields.forEach(field => {
+                    var form_field = document.getElementById(field);
+
+                    if (selected == 'new') {
+                        form_field.value = '';
+                    } else {
+                        form_field.value = document.getElementById(`${field}-${selected - 1}`).innerHTML;
+                    }
+                })
+            });
+        </script>
+    </body>
+</html>

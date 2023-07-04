@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>TruckMgr - Home</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="bulma.min.css">
+        <link rel="script" href="index.js">
+    </head>
+    <body>
+        <%- include('navbar.ejs') %>
+        <section class="section">
+            <div class="container has-text-centered is-mobile">
+                <div class="columns">
+                    <div class="column is-two-fifths is-mobile">
+                        <div class="box">
+                            <h1 class="title has-text-left"><%= company_name %> Dashboard</h1>
+                        </div>
+                    </div>
+                    <div class="column has-text-centered is-mobile">
+                        <div class="box">
+                            <h3 class="title has-text-left">Overview</h3>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>
