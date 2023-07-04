@@ -20,6 +20,8 @@
                 <th>Route</th>
                 <th>Origin</th>
                 <th>Destination</th>
+                <th>Trip Mileage</th>
+                <th>Total Mileage</th>
             </tr>
         <% }; %>
     </thead>
@@ -30,7 +32,16 @@
     var vehicle_array = [];
     var vehicle_row = 0;
     document.addEventListener('DOMContentLoaded', function(event) {
-        vehicle_data = new Request('/trucks/list_trucks', {method: 'GET'});
+        switch ('<%= table %>') {
+            case 'trucks':
+                vehicle_data = new Request('/trucks/list_trucks', {method: 'GET'});
+                break;
+            case 'trips':
+                vehicle_data = new Request('/trips/list_trips', {method: 'GET'});
+                break;
+            default:
+                {}
+        }
         table_body = document.querySelector('#table-body');
         fetch(vehicle_data).then((response) => {
             response.json().then(data => {

@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 
 const db = new sqlite3.Database('./db/trucks.db', sqlite3.OPEN_READWRITE);
 var truck = express.Router();
-// truck.use(bodyParser.json());
+
 truck.use(bodyParser.urlencoded({extended: false}));
 
 var vehicle_data = [];
@@ -29,7 +29,7 @@ truck.get('/', (req, res) => {
     load_trucks();
     res.render('trucks.ejs', {
         table: 'trucks',
-        array: vehicle_data
+        // array: vehicle_data
     });
 });
 

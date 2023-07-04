@@ -9,7 +9,6 @@
     </head>
     <body>
         <%- include('navbar.ejs') %>
-
         <section class="section">
             <div class="container has-text-centered is-mobile">
                 <div class="columns">
@@ -22,11 +21,8 @@
                                         <label class="label" id="test">Select Trip</label>
                                         <div class="control">
                                             <div class="select">
-                                                <select name="truck_selected" id="truck_select">
+                                                <select name="trip_selected" id="trip_select">
                                                     <option value="new">New Trip</option>
-                                                    <% for (var i = 0; i < array.length; i++) { %>
-                                                        <option value="<%= array[i]['plate_number'] %>"><%= array[i]['plate_number'] %></option>
-                                                    <% } %>
                                                 </select>
                                             </div>
                                         </div>
@@ -40,31 +36,43 @@
                                     <div class="field">
                                         <label class="label has-text-left">Date</label>
                                         <div class="control">
-                                            <input class="input" type="text" name="date" placeholder="Date">
+                                            <input class="input" type="text" name="date" id="date" placeholder="Date">
                                         </div>
                                     </div>
                                     <div class="field">
                                         <label class="label has-text-left">Account</label>
                                         <div class="control">
-                                            <input class="input" type="text" name="account" placeholder="Account">
+                                            <input class="input" type="text" name="account" id="account" placeholder="Account">
                                         </div>
                                     </div>
                                     <div class="field">
                                         <label class="label has-text-left">Route</label>
                                         <div class="control">
-                                            <input class="input" type="text" name="route" placeholder="Route">
+                                            <input class="input" type="text" name="route" id="route" placeholder="Route">
                                         </div>
                                     </div>
                                     <div class="field">
                                         <label class="label has-text-left">Origin</label>
                                         <div class="control">
-                                            <input class="input" type="text" name="origin" placeholder="Origin">
+                                            <input class="input" type="text" name="origin" id="origin" placeholder="Origin">
                                         </div>
                                     </div>
                                     <div class="field">
                                         <label class="label has-text-left">Destination</label>
                                         <div class="control">
-                                            <input class="input" type="text" name="destination" placeholder="Destination">
+                                            <input class="input" type="text" name="destination" id="destination" placeholder="Destination">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Trip Mileage</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="trip_mileage" id="trip_mileage" placeholder="Trip Mileage">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Total Mileage</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="total_mileage" id="total_mileage" placeholder="Total Mileage">
                                         </div>
                                     </div>
                                     <div class="field is-grouped is-grouped-center has-text-center">
@@ -77,8 +85,6 @@
                                             <input class="button is-danger is-light" type="submit" formaction="/trips/drop_trip" value="Drop">
                                         </div>
                                     </div>
-                                    
-                                    
                                 </form>
                             </div>
                         </div>
@@ -91,5 +97,38 @@
                 </div>
             </div>
         </section>
+        <script>
+            const selector = document.getElementById('trip_select');
+            var row = 0;
+
+            selector.addEventListener('click', () => {
+                const plates = document.querySelectorAll('[id*=plate_number]');
+                selector.replaceChildren();
+                selector.appendChild(new Option('New Trip', 'new'));
+
+                plates.forEach((plate, plate_index) => {
+                    if (plate.innerHTML.trim() !== '') {
+                    var option = document.createElement('option');
+                    option.setAttribute('value', plate_index);
+                    option.textContent = plate.innerHTML;
+                    selector.appendChild(option);
+                    }
+                })
+            }, {once: true})
+            selector.addEventListener('change', (event) => {
+                const form_fields = ['plate_number', 'date', 'account', 'route', 'origin', 'destination', 'trip_mileage', 'total_mileage'];
+                const selected = selector.value;
+                
+                form_fields.forEach(field => {
+                    var form_field = document.getElementById(field);
+
+                    if (selected == 'new') {
+                        form_field.value = '';
+                    } else {
+                        form_field.value = document.getElementById(`${field}-${selected - 1}`).innerHTML;
+                    }
+                })
+            })
+        </script>
     </body>
 </html>

@@ -104,7 +104,7 @@
                     }
                 })
             }, {once: true})
-            selector.addEventListener("change", (event) => {
+            selector.addEventListener('change', (event) => {
                 const form_fields = ['plate_number', 'year_model', 'mv_filenumber', 'or_number', 'make', 'type'];
                 const selected = selector.value;
                 
@@ -117,7 +117,7 @@
                         form_field.value = document.getElementById(`${field}-${selected - 1}`).innerHTML;
                     }
                 })
-            });
+            })
         </script>
     </body>
 </html>

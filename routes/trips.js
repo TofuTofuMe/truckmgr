@@ -9,33 +9,32 @@ trip.use(bodyParser.urlencoded({extended: false}));
 
 var trip_data = [];
 function load_trips() {
-    db.each('SELECT * FROM trip_table', [], (err, row) => {
+    db.all('SELECT * FROM trip_table', [], (err, row) => {
         if (err) {
-          throw err;
+            throw err;
         }
-        trip_data.push({
-            plate_number: row.plate_number,
-            date: row.date,
-            account: row.account,
-            route: row.route,
-            origin: row.origin,
-            destination: row.destination
-        });
+        // trip_data.push({
+        //     plate_number: row.plate_number,
+        //     date: row.date,
+        //     account: row.account,
+        //     route: row.route,
+        //     origin: row.origin,
+        //     destination: row.destination
+        // });
+        trip_data = row;
     });
 };
-
 
 trip.get('/', (req, res) => {
     load_trips();
     res.render('trips.ejs', {
         table: 'trips',
-        array: trip_data
+        // array: trip_data
     });
-    trip_data = [];
 })
 
 trip.get('/list_trips', (req, res) => {
-    res.sendStatus(200);
+    res.send(trip_data);
 });
 
 trip.post('/update_trip', (req, res, trip) => {
