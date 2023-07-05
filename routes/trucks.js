@@ -11,6 +11,7 @@ var vehicle_data = [];
 function load_trucks() {
     db.all('SELECT * FROM vehicle_data', [], (err, row) => {
         if (err) {
+            res.status(500).send("Error loading data");
             throw err;
         }
         // vehicle_data.push({
@@ -61,22 +62,20 @@ truck.post('/update_truck', (req, res) => {
     }
     db.run(sql, [], (err, row) => {
         if (err) {
+            res.status(500).send("Error handling request");
             throw err;
-            // return res.status(500).send("Error handling request");
         }
-        vehicle_data = [];
-        load_trucks();
     });
     return res.redirect('/trucks');
 });
 
 truck.post('/drop_truck', (req, res) => {
-    sql = `DELETE FROM vehicle_data WHERE plate_number='${req.body.truck_selected}'`;
+    sql = `DELETE FROM vehicle_data WHERE plate_number='${req.body.plate_number}'`;
 
     db.run(sql, [], (err, row) => {
         if (err) {
+            res.status(500).send("Error handling request");
             throw err;
-            // return res.status(500).send("Error handling request");
         }
         vehicle_data = [];
         load_trucks();

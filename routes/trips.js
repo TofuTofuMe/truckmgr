@@ -11,6 +11,7 @@ var trip_data = [];
 function load_trips() {
     db.all('SELECT * FROM trip_table', [], (err, row) => {
         if (err) {
+            res.status(500).send("Error loading data");
             throw err;
         }
         // trip_data.push({
@@ -38,13 +39,14 @@ trip.get('/list_trips', (req, res) => {
 });
 
 trip.post('/update_trip', (req, res, trip) => {
-    if (req.body.truck_selected == 'new') {
+    if (req.body.trip_selected == 'new') {
         sql = `INSERT INTO trip_table (
             plate_number, date, account,
             route, origin, destination)
             VALUES ("${req.body.plate_number}",
             "${req.body.date}", "${req.body.account}",
             "${req.body.route}", "${req.body.origin}",
+            "${req.body.trip_mileage}", "${req.body.total_mileage}",
             "${req.body.destination}"
         )`;
 
@@ -52,36 +54,33 @@ trip.post('/update_trip', (req, res, trip) => {
             return res.send("<script>alert('Invalid form input.');window.location='/trips';</script>");
         }
     } else {
-        sql = `UPDATE trip_data SET
+        sql = `UPDATE trip_table SET
             date="${req.body.date}",
             account="${req.body.account}",
             route="${req.body.route}",
             origin="${req.body.origin}",
-            destination="${req.body.destination}"
-            WHERE plate_number="${req.body.truck_selected}"`
+            destination="${req.body.destination}",
+            trip_mileage="${req.body.trip_mileage}",
+            total_mileage="${req.body.total_mileage}"
+            WHERE plate_number="${req.body.plate_number}"`
     }
-
     db.run(sql, [], (err, row) => {
         if (err) {
+            res.status(500).send("Error handling request");
             throw err;
-            // return res.status(500).send("Error handling request");
         }
-        trip_data = [];
-        load_trips();
     })
     return res.redirect('/trips');
 });
 
 trip.post('/drop_trip', (req, res) => {
-    sql = `DELETE FROM trip_table WHERE plate_number='${req.body.truck_selected}'`;
+    sql = `DELETE FROM trip_table WHERE plate_number='${req.body.plate_number}'`;
 
     db.run(sql, [], (err, row) => {
         if (err) {
+            res.status(500).send("Error handling request");
             throw err;
-            // return res.status(500).send("Error handling request");
         }
-        trip_data = [];
-        load_trips();
     });
     return res.redirect('/trips');
 });
