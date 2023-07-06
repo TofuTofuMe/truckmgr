@@ -10,7 +10,7 @@
     <body>
         <%- include('navbar.ejs') %>
         <section class="section">
-            <div class="container has-text-centered is-mobile">
+            <div class="container is-mobile">
                 <div class="columns">
                     <div class="column is-one-third is-mobile">
                         <div class="box">
@@ -18,7 +18,7 @@
                             <div class="box">
                                 <form class="form" action="/trips/update_trip" method="post">
                                     <div class="field">
-                                        <label class="label" id="test">Select Trip</label>
+                                        <label class="label has-text-left">Select Trip</label>
                                         <div class="control">
                                             <div class="select">
                                                 <select name="trip_selected" id="trip_select">
@@ -104,14 +104,12 @@
             selector.addEventListener('click', () => {
                 const plates = document.querySelectorAll('[id*=plate_number]');
                 selector.replaceChildren();
-                selector.appendChild(new Option('New Trip', 'new'));
+                selector.add(new Option('New Trip', 'new'));
 
                 plates.forEach((plate, plate_index) => {
                     if (plate.innerHTML.trim() !== '') {
-                    var option = document.createElement('option');
-                    option.setAttribute('value', plate_index);
-                    option.textContent = plate.innerHTML;
-                    selector.appendChild(option);
+                        var option = new Option(plate.innerHTML, plate_index);
+                        selector.add(option);
                     }
                 })
             }, {once: true})

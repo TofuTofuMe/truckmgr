@@ -28,10 +28,7 @@ function load_trucks() {
 
 truck.get('/', (req, res) => {
     load_trucks();
-    res.render('trucks.ejs', {
-        table: 'trucks',
-        // array: vehicle_data
-    });
+    res.render('trucks.ejs', {table: 'trucks'});
 });
 
 truck.get('/list_trucks', (req, res) => {
@@ -41,17 +38,17 @@ truck.get('/list_trucks', (req, res) => {
 truck.post('/update_truck', (req, res) => {
     if (req.body.truck_selected == 'new') {
         sql = `INSERT INTO vehicle_data (
-                plate_number, year_model, mv_filenumber, or_number, make, type
-                ) VALUES (
-                "${req.body.plate_number}", "${req.body.year_model}",
-                "${req.body.mv_filenumber}", "${req.body.or_number}",
-                "${req.body.make}", "${req.body.type}"
+            plate_number, year_model, mv_filenumber,
+            or_number, make, type)
+            VALUES ("${req.body.plate_number}",
+            "${req.body.year_model}", "${req.body.mv_filenumber}",
+            "${req.body.or_number}", "${req.body.make}",
+            "${req.body.type}"
         )`;
 
         if (!req.body.plate_number) {
             return res.send("<script>alert('Invalid form input.');window.location='/trucks';</script>");
         }
-        
     } else {
         sql = `UPDATE vehicle_data SET
             year_model="${req.body.year_model}",
