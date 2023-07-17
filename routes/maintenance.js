@@ -1,17 +1,22 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+
+const maintenanceController = require('../controllers/maintenanceController');
 
 var maintenance = express.Router();
 
+maintenance.use(bodyParser.urlencoded({extended: false}));
+
 maintenance.get('/', (req, res) => {
-    res.render('maintenance.ejs', {table: NaN, array: NaN});
-})
-
-maintenance.get('/list_maintenance', (req, res) => {
-    res.sendStatus(200);
+    res.render('maintenanceView.ejs', {table: 'maintenance'});
 });
 
-maintenance.get('/update_maintenance', (req, res, maintenance) => {
-    res.sendStatus(200);
-});
+maintenance.get('/list_maintenance', maintenanceController.getMaintenance);
+
+maintenance.post('/add_maintenance', maintenanceController.addMaintenance);
+
+maintenance.post('/update_maintenance', maintenanceController.updateMaintenance);
+
+maintenance.post('/drop_maintenance', maintenanceController.dropMaintenance);
 
 module.exports = maintenance;

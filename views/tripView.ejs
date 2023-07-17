@@ -1,0 +1,199 @@
+<html>
+    <head>
+        <title>TruckMgr - Trips</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="bulma.min.css">
+        <link rel="script" href="index.js">
+    </head>
+    <body>
+        <%- include('navbar.ejs') %>
+        <section class="section">
+            <div class="container is-mobile">
+                <div class="columns">
+                    <div class="column is-one-third is-mobile">
+                        <div class="box">
+                            <h3 class="title is-5 has-text-left">Trips</h3>
+                            <div class="box">
+                                <form class="form" id="tripForm" action="/trips/add_trip" method="post">
+                                    <div class="field">
+                                        <div class="columns is-mobile">
+                                            <div class="column">
+                                                <label class="label has-text-left">Select Trip</label>
+                                                <div class="control">
+                                                    <div class="select">
+                                                        <select name="trip_selected" id="trip_select">
+                                                            <option value="new">New Trip</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <label class="label has-text-left">Trip No.</label>
+                                                <div class="control">
+                                                    <input class="input" type="text" name="trip_number" id="trip_number" placeholder="No.">
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <label class="label has-text-left">Plate No.</label>
+                                                <div class="control">
+                                                    <div class="select">
+                                                        <select name="plate_number" id="plate_number">
+                                                            <option value="">---------</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Date</label>
+                                        <div class="control">
+                                            <input class="input" type="date" name="date" id="date" placeholder="Date">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Account</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="account" id="account" placeholder="Account">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Route</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="route" id="route" placeholder="Route">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Origin</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="origin" id="origin" placeholder="Origin">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Destination</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="destination" id="destination" placeholder="Destination">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Trip Mileage</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="trip_mileage" id="trip_mileage" placeholder="Trip Mileage">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Total Mileage</label>
+                                        <div class="control">
+                                            <input class="input" type="text" name="total_mileage" id="total_mileage" placeholder="Total Mileage">
+                                        </div>
+                                    </div>
+                                    <div class="field is-grouped is-grouped-center has-text-center">
+                                        <label class="label"> </label>
+                                        <div class="control">
+                                            <input class="button is-success" type="submit" value="Update">
+                                        </div>
+                                        <label class="label"> </label>
+                                        <div class="control">
+                                            <input class="button is-danger is-light" type="submit" formaction="/trips/drop_trip" id="dropButton" disabled value="Drop">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column has-text-centered is-mobile">
+                        <div class="box">
+                            <%- include('table.ejs') %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <script>
+            const tripSelector = document.getElementById('trip_select');
+            const plateSelector = document.getElementById('plate_number');
+
+            tripSelector.addEventListener('click', () => {
+                const trips = document.querySelectorAll('[id*=trip_number]');
+                tripSelector.replaceChildren();
+                tripSelector.add(new Option('New Trip', 'new'));
+
+                trips.forEach((trip, trip_index) => {
+                    if (trip.innerHTML.trim() !== '') {
+                        var option = new Option(`No. ${trip.innerHTML}`, trip_index);
+                        tripSelector.add(option);
+                    }
+                })
+
+                plateArray = [];
+                vehicleData = new Request('/trucks/list_trucks', {method: 'GET'});
+                fetch(vehicleData).then(response => {
+                    response.json().then(data => {
+                        plateArray = data;
+                    
+                        plateArray.forEach((trips, trip_index) => {
+                            var option = new Option(trips['plate_number'], trips['plate_number']);
+                            plateSelector.add(option);
+
+                        })
+                    })                   
+                })
+            }, {once: true})
+
+            tripSelector.addEventListener('click', () => {
+                switch (tripSelector.value) {
+                    case 'new':
+                        document.getElementById('tripForm').action = 'trips/add_trip';
+                        break;
+                    default:
+                        document.getElementById('tripForm').action = 'trips/update_trip';
+                        break;
+                }
+            }, {once: false})
+            
+            tripSelector.addEventListener('change', () => {
+                const formFields = ['trip_number', 'plate_number', 'date', 'account', 'route', 'origin', 'destination', 'trip_mileage', 'total_mileage'];
+                const selected = tripSelector.value;
+                
+                formFields.forEach(field => {
+                    var formField = document.getElementById(field);
+
+                    if (selected == 'new') {
+                        formField.value = '';
+                    } else {
+                        formField.value = document.getElementById(`${field}-${selected - 1}`).innerHTML;
+                    }
+                })
+
+                tripNumber = document.getElementById('trip_number');
+                dropButton = document.getElementById('dropButton');
+                if (tripSelector.value != 'new') {
+                    tripNumber.readOnly = true;
+                    dropButton.disabled = false
+                } else {
+                    tripNumber.readOnly = false;
+                    dropButton.disabled = true;
+                }
+            })
+
+            // plateSelector.addEventListener('click', () => {
+            //     plateArray = [];
+            //     vehicleData = new Request('/trucks/list_trucks', {method: 'GET'});
+            //     fetch(vehicleData).then(response => {
+            //         response.json().then(data => {
+            //             plateArray = data;
+                    
+            //             plateArray.forEach((trips, trip_index) => {
+            //                 var option = new Option(trips['plate_number'], trips['plate_number']);
+            //                 plateSelector.add(option);
+
+            //             })
+            //         })                   
+            //     })
+            // })
+
+        </script>
+    </body>
+</html>

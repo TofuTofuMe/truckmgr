@@ -14,6 +14,7 @@
         <% if (table == 'trips') { %>
             <tr>
                 <!-- <th>Select</th> -->
+                <th>Trip No.</th>
                 <th>Plate No.</th>
                 <th>Date</th>
                 <th>Account</th>
@@ -24,13 +25,23 @@
                 <th>Total Mileage</th>
             </tr>
         <% }; %>
+        <% if (table == 'maintenance') { %>
+            <tr>
+                <th>Job Order No.</th>
+                <th>Plate No.</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Notes</th>
+                <th>PMS</th>
+            </tr>
+        <% }; %>
     </thead>
     <tbody id="table-body">
     </tbody>
 </table>
 <script>
-    var vehicle_array = [];
-    var vehicle_row = 0;
+    var vehicleArray = [];
+    var vehicleRow = 0;
     document.addEventListener('DOMContentLoaded', function(event) {
         switch ('<%= table %>') {
             case 'trucks':
@@ -39,28 +50,36 @@
             case 'trips':
                 vehicle_data = new Request('/trips/list_trips', {method: 'GET'});
                 break;
+            case 'maintenance':
+                vehicle_data = new Request('/maintenance/list_maintenance', {method: 'GET'});
+                break;
             default:
                 {}
         }
-        table_body = document.querySelector('#table-body');
+        tableBody = document.querySelector('#table-body');
         fetch(vehicle_data).then((response) => {
             response.json().then(data => {
-                vehicle_array = data;
+                vehicleArray = data;
 
-                vehicle_array.forEach(vehicle => {
-                    const table_row = document.createElement('tr');
+                if (vehicleArray.length === 0) {
+                    vehicleArray.push({
+                        blankmsg: 'No data available'
+                    })
+                }
+
+                vehicleArray.forEach(vehicle => {
+                    const tableRow = document.createElement('tr');
                     for (const data in vehicle) {
-                        const table_data = document.createElement('td');
-                        table_data.setAttribute('id', `${data}-${vehicle_row}`);
-                        table_data.textContent = vehicle[data];
-                        table_row.appendChild(table_data);
+                        const tableData = document.createElement('td');
+                        tableData.setAttribute('id', `${data}-${vehicleRow}`);
+                        tableData.textContent = vehicle[data];
+                        tableRow.appendChild(tableData);
                     }
-                    table_row.setAttribute('id', `vehicle-${vehicle_row}`);
-                    table_body.appendChild(table_row);
-                    vehicle_row++;
+                    tableRow.setAttribute('id', `vehicle-${vehicleRow}`);
+                    tableBody.appendChild(tableRow);
+                    vehicleRow++;
                 })
             })
         });
-        
     })
 </script>

@@ -1,0 +1,181 @@
+<html>
+    <head>
+        <title>TruckMgr - Maintenance</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="bulma.min.css">
+        <link rel="script" href="index.js">
+    </head>
+    <body>
+        <%- include('navbar.ejs') %>
+        <section class="section">
+            <div class="container is-mobile">
+                <div class="columns">
+                    <div class="column is-one-third is-mobile">
+                        <div class="box">
+                            <h3 class="title is-5 has-text-left">Maintenance</h3>
+                            <div class="box">
+                                <form class="form" id="maintenanceForm" action="/maintenance/add_maintenance" method="post">
+                                    <div class="field">
+                                        <div class="columns is-mobile">
+                                            <div class="column">
+                                                <label class="label has-text-left">Select Maintenance</label>
+                                                <div class="control">
+                                                    <div class="select">
+                                                        <select name="maintenance" id="maintenance_select">
+                                                            <option value="new">New Maintenance</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <label class="label has-text-left">Maintenance No.</label>
+                                                <div class="control">
+                                                    <input class="input" type="text" name="joborder_number" id="joborder_number" placeholder="No.">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Plate No.</label>
+                                        <div class="control">
+                                            <div class="select">
+                                                <select name="plate_number" id="plate_number">
+                                                    <option value="">---------</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Date</label>
+                                        <div class="control">
+                                            <input class="input" type="date" id="date" name="date" placeholder="Date">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Description</label>
+                                        <div class="control">
+                                            <input class="input" type="text" id="description" name="description" placeholder="Description">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Notes</label>
+                                        <div class="control">
+                                            <input class="input" type="text" id="notes" name="notes" placeholder="Notes">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">PMS</label>
+                                        <div class="control">
+                                            <input class="input" type="text" id="pms" name="pms" placeholder="PMS">
+                                        </div>
+                                    </div>
+                                    <div class="field is-grouped is-grouped-center has-text-center">
+                                        <label class="label"> </label>
+                                        <div class="control">
+                                            <input class="button is-success" type="submit" value="Update">
+                                        </div>
+                                        <label class="label"> </label>
+                                        <div class="control">
+                                            <input class="button is-danger is-light" type="submit" value="Drop">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column has-text-centered is-mobile">
+                        <div class="box">
+                            <%- include('table.ejs') %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <script>
+            const maintenanceSelector = document.getElementById('maintenance_select');
+            const plateSelector = document.getElementById('plate_number');
+
+            maintenanceSelector.addEventListener('click', () => {
+                const maintenance = document.querySelectorAll('[id*=joborder_number]');
+                maintenanceSelector.replaceChildren();
+                maintenanceSelector.add(new Option('New Maintenance', 'new'));
+
+                maintenance.forEach((maintenance, maintenance_index) => {
+                    if (maintenance.innerHTML.trim() !== '') {
+                        var option = new Option(`No. ${maintenance.innerHTML}`, maintenance_index);
+                        maintenanceSelector.add(option);
+                    }
+                })
+
+                plateArray = [];
+                vehicleData = new Request('/trucks/list_trucks', {method: 'GET'});
+                fetch(vehicleData).then(response => {
+                    response.json().then(data => {
+                        plateArray = data;
+                    
+                        plateArray.forEach((maintenance, maintenance_index) => {
+                            var option = new Option(maintenance['plate_number'], maintenance['plate_number']);
+                            plateSelector.add(option);
+
+                        })
+                    })                   
+                })
+            }, {once: true})
+
+            maintenanceSelector.addEventListener('click', () => {
+                switch (maintenanceSelector.value) {
+                    case 'new':
+                        document.getElementById('maintenanceForm').action = 'maintenance/add_maintenance';
+                        break;
+                    default:
+                        document.getElementById('maintenanceForm').action = 'maintenance/update_maintenance';
+                        break;
+                }
+            }, {once: false})
+            
+            maintenanceSelector.addEventListener('change', () => {
+                const formFields = ['joborder_number', 'plate_number', 'date', 'description', 'notes', 'pms'];
+                const selected = maintenanceSelector.value;
+                
+                formFields.forEach(field => {
+                    var formField = document.getElementById(field);
+
+                    if (selected == 'new') {
+                        formField.value = '';
+                    } else {
+                        formField.value = document.getElementById(`${field}-${selected - 1}`).innerHTML;
+                    }
+                })
+
+                maintenanceNumber = document.getElementById('joborder_number');
+                dropButton = document.getElementById('dropButton');
+                if (maintenanceSelector.value != 'new') {
+                    maintenanceNumber.readOnly = true;
+                    dropButton.disabled = false
+                } else {
+                    maintenanceNumber.readOnly = false;
+                    dropButton.disabled = true;
+                }
+            })
+
+            // plateSelector.addEventListener('click', () => {
+            //     plateArray = [];
+            //     vehicleData = new Request('/trucks/list_trucks', {method: 'GET'});
+            //     fetch(vehicleData).then(response => {
+            //         response.json().then(data => {
+            //             plateArray = data;
+                    
+            //             plateArray.forEach((maintenance, maintenance_index) => {
+            //                 var option = new Option(maintenance['plate_number'], maintenance['plate_number']);
+            //                 plateSelector.add(option);
+
+            //             })
+            //         })                   
+            //     })
+            // })
+
+        </script>
+    </body>
+</html>

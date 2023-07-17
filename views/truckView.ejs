@@ -16,23 +16,29 @@
                         <div class="box">
                             <h3 class="title is-5 has-text-left">Trucks</h3>
                             <div class="box">
-                                <form class="form" action="/trucks/update_truck" method="post">
+                                <form class="form" id="truckForm" action="/trucks/add_truck" method="post">
                                     <div class="field">
-                                        <label class="label">Select Truck</label>
-                                        <div class="control">
-                                            <div class="select">
-                                                <select name="truck_selected" id="truck_select">
-                                                    <option value="new">New Truck</option>
-                                                </select>
+                                        <div class="columns">
+                                            <div class="column">
+                                                <label class="label">Select Truck</label>
+                                                <div class="control">
+                                                    <div class="select">
+                                                        <select name="truck_selected" id="truckSelect">
+                                                            <option value="new">New Truck</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <div class="field">
+                                                    <label class="label has-text-left">Plate No.</label>
+                                                    <div class="control">
+                                                        <input class="input" type="text" name="plate_number" id="plate_number" placeholder="Plate No.">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="field">
-                                        <label class="label has-text-left">Plate No.</label>
-                                        <div class="control">
-                                            <input class="input" type="text" name="plate_number" id="plate_number" placeholder="Plate No.">
-                                        </div>
-                                    </div>
+                                    </div>                               
                                     <div class="field">
                                         <label class="label has-text-left">Year Model</label>
                                         <div class="control">
@@ -66,11 +72,11 @@
                                     <div class="field is-grouped is-grouped-center has-text-center">
                                         <label class="label"> </label>
                                         <div class="control">
-                                            <input class="button is-success" type="submit" value="Update">
+                                            <input class="button is-success" type="submit" id="submitButton" value="Update">
                                         </div>
                                         <label class="label"> </label>
                                         <div class="control">
-                                            <input class="button is-danger is-light" type="submit" formaction="/trucks/drop_truck" value="Drop">
+                                            <input class="button is-danger is-light" type="submit" formaction="/trucks/drop_truck" id="dropButton" disabled value="Drop">
                                         </div>
                                     </div>
                                 </form>
@@ -87,42 +93,59 @@
 
         </section>
         <script>
-            const selector = document.getElementById('truck_select');
-            var row = 0;
+            const formFields = ['plate_number', 'year_model', 'mv_filenumber', 'or_number', 'make', 'type'];
+            const truckSelector = document.getElementById('truckSelect');
+            const plateNumber = document.getElementById('plate_number');
+            const submitButton = document.getElementById('submitButton');
+            const dropButton = document.getElementById('dropButton');
 
-            selector.addEventListener('click', () => {
+            truckSelector.addEventListener('click', () => {
                 const plates = document.querySelectorAll('[id*=plate_number]');
-                selector.replaceChildren();
-                selector.add(new Option('New Truck', 'new'));
+                truckSelector.replaceChildren();
+                truckSelector.add(new Option('New Truck', 'new'));
 
                 plates.forEach((plate, plate_index) => {
                     if (plate.innerHTML.trim() !== '') {
                         var option = new Option(plate.innerHTML, plate_index);
-                        selector.add(option);
+                        truckSelector.add(option);
                     }
                 })
             }, {once: true})
-            selector.addEventListener('change', (event) => {
-                const form_fields = ['plate_number', 'year_model', 'mv_filenumber', 'or_number', 'make', 'type'];
-                const selected = selector.value;
+            truckSelector.addEventListener('click', () => {
+                switch (truckSelector.value) {
+                    case 'new':
+                        document.getElementById('truckForm').action = 'trucks/add_truck';
+                        break;
+                    default:
+                        document.getElementById('truckForm').action = 'trucks/update_truck';
+                        break;
+                }
+            }, {once: false})
+            truckSelector.addEventListener('change', () => {
+                const selected = truckSelector.value;
                 
-                form_fields.forEach(field => {
-                    var form_field = document.getElementById(field);
+                formFields.forEach(field => {
+                    var formField = document.getElementById(field);
 
                     if (selected == 'new') {
-                        form_field.value = '';
+                        formField.value = '';
                     } else {
-                        form_field.value = document.getElementById(`${field}-${selected - 1}`).innerHTML;
+                        formField.value = document.getElementById(`${field}-${selected - 1}`).innerHTML;
                     }
                 })
 
-                plate_number = document.getElementById('plate_number');
-                if (selector.value != 'new') {
-                    plate_number.readOnly = true;
-                    plate_number.setAttribute('readonly');
+                if (truckSelector.value != 'new') {
+                    plateNumber.readOnly = true;
+                    dropButton.disabled = false
                 } else {
-                    document.getElementById('plate_number').readOnly = false;
-                    plate_number.removeAttribute('readonly');
+                    plateNumber.readOnly = false;
+                    dropButton.disabled = true;
+                }
+            })
+
+            submitButton.addEventListener('click', () => {
+                if (!plateNumber) {
+                    alert('No plate number entered');
                 }
             })
         </script>
