@@ -1,4 +1,4 @@
-async function selectorChangeHandle(selectorId, formFieldIds, referenceFieldId) {
+async function handleSelectorChange(selectorId, formFieldIds, referenceFieldId) {
     const selector = document.getElementById(selectorId);
 
     const referenceField = document.getElementById(referenceFieldId);
