@@ -1,4 +1,4 @@
-<table class="table is-bordered has-text-centered">
+<table class="table is-bordered has-text-centered sortable" id="<%= table %>">
     <thead>
         <% if (table == 'trucks') { %>
             <tr>
@@ -39,47 +39,3 @@
     <tbody id="table-body">
     </tbody>
 </table>
-<script>
-    var vehicleArray = [];
-    var vehicleRow = 0;
-    document.addEventListener('DOMContentLoaded', function(event) {
-        switch ('<%= table %>') {
-            case 'trucks':
-                vehicle_data = new Request('/trucks/list_trucks', {method: 'GET'});
-                break;
-            case 'trips':
-                vehicle_data = new Request('/trips/list_trips', {method: 'GET'});
-                break;
-            case 'maintenance':
-                vehicle_data = new Request('/maintenance/list_maintenance', {method: 'GET'});
-                break;
-            default:
-                {}
-        }
-        tableBody = document.querySelector('#table-body');
-        fetch(vehicle_data).then((response) => {
-            response.json().then(data => {
-                vehicleArray = data;
-
-                if (vehicleArray.length === 0) {
-                    vehicleArray.push({
-                        blankmsg: 'No data available'
-                    })
-                }
-
-                vehicleArray.forEach(vehicle => {
-                    const tableRow = document.createElement('tr');
-                    for (const data in vehicle) {
-                        const tableData = document.createElement('td');
-                        tableData.setAttribute('id', `${data}-${vehicleRow}`);
-                        tableData.textContent = vehicle[data];
-                        tableRow.appendChild(tableData);
-                    }
-                    tableRow.setAttribute('id', `vehicle-${vehicleRow}`);
-                    tableBody.appendChild(tableRow);
-                    vehicleRow++;
-                })
-            })
-        });
-    })
-</script>
