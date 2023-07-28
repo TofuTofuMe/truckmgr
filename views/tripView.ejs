@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="index.css">
         <link rel="stylesheet" href="bulma.min.css">
-        <link rel="script" href="index.js">
+        <script src="index.js"></script>
     </head>
     <body>
         <%- include('navbar.ejs') %>
@@ -23,7 +23,7 @@
                                                 <label class="label has-text-left">Select Trip</label>
                                                 <div class="control">
                                                     <div class="select">
-                                                        <select name="trip_selected" id="trip_select">
+                                                        <select name="tripSelected" id="tripSelect">
                                                             <option value="new">New Trip</option>
                                                         </select>
                                                     </div>
@@ -32,18 +32,18 @@
                                             <div class="column">
                                                 <label class="label has-text-left">Trip No.</label>
                                                 <div class="control">
-                                                    <input class="input" type="text" name="trip_number" id="trip_number" placeholder="No.">
+                                                    <input class="input" min="1" type="number" name="trip_number" id="trip_number" placeholder="No.">
                                                 </div>
                                             </div>
-                                            <div class="column">
-                                                <label class="label has-text-left">Plate No.</label>
-                                                <div class="control">
-                                                    <div class="select">
-                                                        <select name="plate_number" id="plate_number">
-                                                            <option value="">---------</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label has-text-left">Plate No.</label>
+                                        <div class="control">
+                                            <div class="select">
+                                                <select name="plate_number" id="plate_number">
+                                                    <option value="">---------</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -68,13 +68,13 @@
                                     <div class="field">
                                         <label class="label has-text-left">Origin</label>
                                         <div class="control">
-                                            <input class="input" type="text" name="origin" id="origin" placeholder="Origin">
+                                            <input class="input" type="text" name="origin" id="origin" readonly placeholder="Origin">
                                         </div>
                                     </div>
                                     <div class="field">
                                         <label class="label has-text-left">Destination</label>
                                         <div class="control">
-                                            <input class="input" type="text" name="destination" id="destination" placeholder="Destination">
+                                            <input class="input" type="text" name="destination" id="destination" readonly placeholder="Destination">
                                         </div>
                                     </div>
                                     <div class="field">
@@ -112,88 +112,19 @@
             </div>
         </section>
         <script>
-            const tripSelector = document.getElementById('trip_select');
-            const plateSelector = document.getElementById('plate_number');
+            const formFields = [
+                'trip_number', 'plate_number',
+                'date', 'account',
+                'route', 'origin',
+                'destination', 'trip_mileage',
+                'total_mileage'
+            ];
 
-            tripSelector.addEventListener('click', () => {
-                const trips = document.querySelectorAll('[id*=trip_number]');
-                tripSelector.replaceChildren();
-                tripSelector.add(new Option('New Trip', 'new'));
-
-                trips.forEach((trip, trip_index) => {
-                    if (trip.innerHTML.trim() !== '') {
-                        var option = new Option(`No. ${trip.innerHTML}`, trip_index);
-                        tripSelector.add(option);
-                    }
-                })
-
-                plateArray = [];
-                vehicleData = new Request('/trucks/list_trucks', {method: 'GET'});
-                fetch(vehicleData).then(response => {
-                    response.json().then(data => {
-                        plateArray = data;
-                    
-                        plateArray.forEach((trips, trip_index) => {
-                            var option = new Option(trips['plate_number'], trips['plate_number']);
-                            plateSelector.add(option);
-
-                        })
-                    })                   
-                })
-            }, {once: true})
-
-            tripSelector.addEventListener('click', () => {
-                switch (tripSelector.value) {
-                    case 'new':
-                        document.getElementById('tripForm').action = 'trips/add_trip';
-                        break;
-                    default:
-                        document.getElementById('tripForm').action = 'trips/update_trip';
-                        break;
-                }
-            }, {once: false})
-            
-            tripSelector.addEventListener('change', () => {
-                const formFields = ['trip_number', 'plate_number', 'date', 'account', 'route', 'origin', 'destination', 'trip_mileage', 'total_mileage'];
-                const selected = tripSelector.value;
-                
-                formFields.forEach(field => {
-                    var formField = document.getElementById(field);
-
-                    if (selected == 'new') {
-                        formField.value = '';
-                    } else {
-                        formField.value = document.getElementById(`${field}-${selected - 1}`).innerHTML;
-                    }
-                })
-
-                tripNumber = document.getElementById('trip_number');
-                dropButton = document.getElementById('dropButton');
-                if (tripSelector.value != 'new') {
-                    tripNumber.readOnly = true;
-                    dropButton.disabled = false
-                } else {
-                    tripNumber.readOnly = false;
-                    dropButton.disabled = true;
-                }
-            })
-
-            // plateSelector.addEventListener('click', () => {
-            //     plateArray = [];
-            //     vehicleData = new Request('/trucks/list_trucks', {method: 'GET'});
-            //     fetch(vehicleData).then(response => {
-            //         response.json().then(data => {
-            //             plateArray = data;
-                    
-            //             plateArray.forEach((trips, trip_index) => {
-            //                 var option = new Option(trips['plate_number'], trips['plate_number']);
-            //                 plateSelector.add(option);
-
-            //             })
-            //         })                   
-            //     })
-            // })
-
+            setFormAction('tripSelect', 'tripForm', 'trips/add_trip', 'trips/update_trip');
+            retrieveTableData('trips').then(() => {
+                setupSelectorOptions('tripSelect', 'trip_number', 'Trip', 'plate_number');
+                handleSelectorChange('tripSelect', formFields, 'trip_number');
+            });
         </script>
     </body>
 </html>

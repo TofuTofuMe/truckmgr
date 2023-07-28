@@ -1,36 +1,7 @@
-async function handleSelectorChange(selectorId, formFieldIds, referenceFieldId) {
-    const selector = document.getElementById(selectorId);
-
-    const referenceField = document.getElementById(referenceFieldId);
-    const dropButton = document.getElementById('dropButton');
-
-    selector.addEventListener('change', () => {
-        const selected = selector.value;
-
-        formFieldIds.forEach(fieldId => {
-            const formField = document.getElementById(fieldId);
-
-            if (selected === 'new') {
-                formField.value = '';
-            } else {
-                formField.value = document.getElementById(`${fieldId}-${selected - 1}`).innerHTML;
-            }
-        });
-
-        if (selector.value !== 'new') {
-            referenceField.readOnly = true;
-            dropButton.disabled = false;
-        } else {
-            referenceField.readOnly = false;
-            dropButton.disabled = true;
-        }
-    });
-}
-
 async function retrieveTableData(tableId) {
-    var dataRow = 0;
-    const table = document.getElementById(tableId);
-    document.addEventListener('DOMContentLoaded', () => {
+    return new Promise((resolve, reject) => {
+        var dataRow = 0;
+        const table = document.getElementById(tableId);
         switch (table.id) {
             case 'trucks':
                 request = new Request('/trucks/list_trucks', {method: 'GET'});
@@ -45,15 +16,15 @@ async function retrieveTableData(tableId) {
                 {}
         }
         tableBody = document.querySelector('#table-body');
-        fetch(request).then((response) => {
-            response.json().then(responseData => {
 
+        fetch(request)
+            .then((response) => response.json())
+            .then((responseData) => {
                 if (responseData.length === 0) {
                     responseData.push({
                         blankmsg: 'No data available'
                     })
                 }
-
                 responseData.forEach(entry => {
                     const tableRow = document.createElement('tr');
                     for (const data in entry) {
@@ -65,8 +36,82 @@ async function retrieveTableData(tableId) {
                     tableRow.setAttribute('id', `entry-${dataRow}`);
                     tableBody.appendChild(tableRow);
                     dataRow++;
-                })
+                });
+                resolve();
             })
+        .catch((error) => {
+            console.error('Error fetching table data: ', error);
+            reject(error);
         });
-    })
+    });
+}
+
+function handleSelectorChange(selectorId, formFieldIds, referenceFieldId) {
+    try {
+        const selector = document.getElementById(selectorId);
+
+        const referenceField = document.getElementById(referenceFieldId);
+        const dropButton = document.getElementById('dropButton');
+
+        selector.addEventListener('change', () => {
+            const selected = selector.value;
+
+            formFieldIds.forEach(fieldId => {
+                const formField = document.getElementById(fieldId);
+
+                if (selected === 'new') {
+                    formField.value = '';
+                } else {
+                    formField.value = document.getElementById(`${fieldId}-${selected - 1}`).innerHTML;
+                }
+            });
+
+            if (selector.value !== 'new') {
+                referenceField.readOnly = true;
+                dropButton.disabled = false;
+            } else {
+                referenceField.readOnly = false;
+                dropButton.disabled = true;
+            }
+        });
+    } catch (error) {
+        console.error('Error handling selector: ', error);
+    }
+}
+
+function setupSelectorOptions(selectorId, referenceId, optionType) {
+    try {
+        const selector = document.getElementById(selectorId);
+        const items = document.querySelectorAll(`[id*=${referenceId}`);
+        selector.replaceChildren();
+        selector.add(new Option(`New ${optionType}`, 'new'));
+
+        items.forEach((item, itemIndex) => {
+            if (item.innerHTML.trim() !== '') {
+                var option = new Option(item.innerHTML, itemIndex);
+                selector.add(option);
+            }
+        })
+    } catch (error) {
+        console.error('Error setting up selector: ', error);
+    }
+}
+
+function setFormAction(selectorId, formId, addUrl, updateUrl) {
+    const selector = document.getElementById(selectorId);
+    const form = document.getElementById(formId);
+
+    const submitButton = document.getElementById('submitButton');
+    const dropButton = document.getElementById('dropButton');
+
+    selector.addEventListener('change', () => {
+        switch (selector.value) {
+            case 'new':
+                form.action = addUrl;
+                break;
+            default:
+                form.action = updateUrl;
+                break;
+        }
+    }, {once: false})
 }

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="index.css">
         <link rel="stylesheet" href="bulma.min.css">
-        <link rel="script" href="index.js">
+        <script src="index.js"></script>
     </head>
     <body>
         <%- include('navbar.ejs') %>
@@ -90,64 +90,25 @@
                     </div>
                 </div>
             </div>
-
         </section>
         <script>
-            const formFields = ['plate_number', 'year_model', 'mv_filenumber', 'or_number', 'make', 'type'];
-            const truckSelector = document.getElementById('truckSelect');
-            const plateNumber = document.getElementById('plate_number');
-            const submitButton = document.getElementById('submitButton');
-            const dropButton = document.getElementById('dropButton');
-
-            truckSelector.addEventListener('click', () => {
-                const plates = document.querySelectorAll('[id*=plate_number]');
-                truckSelector.replaceChildren();
-                truckSelector.add(new Option('New Truck', 'new'));
-
-                plates.forEach((plate, plate_index) => {
-                    if (plate.innerHTML.trim() !== '') {
-                        var option = new Option(plate.innerHTML, plate_index);
-                        truckSelector.add(option);
-                    }
-                })
-            }, {once: true})
-            truckSelector.addEventListener('click', () => {
-                switch (truckSelector.value) {
-                    case 'new':
-                        document.getElementById('truckForm').action = 'trucks/add_truck';
-                        break;
-                    default:
-                        document.getElementById('truckForm').action = 'trucks/update_truck';
-                        break;
-                }
-            }, {once: false})
-            truckSelector.addEventListener('change', () => {
-                const selected = truckSelector.value;
-                
-                formFields.forEach(field => {
-                    var formField = document.getElementById(field);
-
-                    if (selected == 'new') {
-                        formField.value = '';
-                    } else {
-                        formField.value = document.getElementById(`${field}-${selected - 1}`).innerHTML;
-                    }
-                })
-
-                if (truckSelector.value != 'new') {
-                    plateNumber.readOnly = true;
-                    dropButton.disabled = false
-                } else {
-                    plateNumber.readOnly = false;
-                    dropButton.disabled = true;
-                }
-            })
+            const formFields = [
+                'plate_number', 'year_model',
+                'mv_filenumber', 'or_number',
+                'make', 'type'
+            ];
 
             submitButton.addEventListener('click', () => {
                 if (!plateNumber) {
                     alert('No plate number entered');
                 }
-            })
+            });
+            
+            setFormAction('truckSelect', 'truckForm', 'trucks/add_truck', 'trucks/update_truck');
+            retrieveTableData('trucks').then(() => {
+                setupSelectorOptions('truckSelect', 'plate_number', 'Truck');
+                handleSelectorChange('truckSelect', formFields, 'plate_number');
+            });
         </script>
     </body>
 </html>

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="index.css">
         <link rel="stylesheet" href="bulma.min.css">
-        <link rel="script" href="index.js">
+        <script src="index.js"></script>
     </head>
     <body>
         <%- include('navbar.ejs') %>
@@ -23,7 +23,7 @@
                                                 <label class="label has-text-left">Select Maintenance</label>
                                                 <div class="control">
                                                     <div class="select">
-                                                        <select name="maintenance" id="maintenance_select">
+                                                        <select name="maintenance" id="maintenanceSelect">
                                                             <option value="new">New Maintenance</option>
                                                         </select>
                                                     </div>
@@ -32,7 +32,7 @@
                                             <div class="column">
                                                 <label class="label has-text-left">Maintenance No.</label>
                                                 <div class="control">
-                                                    <input class="input" type="text" name="joborder_number" id="joborder_number" placeholder="No.">
+                                                    <input class="input" type="number" name="joborder_number" id="joborder_number" placeholder="No.">
                                                 </div>
                                             </div>
                                         </div>
@@ -78,7 +78,7 @@
                                         </div>
                                         <label class="label"> </label>
                                         <div class="control">
-                                            <input class="button is-danger is-light" type="submit" value="Drop">
+                                            <input class="button is-danger is-light" type="submit" id="dropButton" disabled value="Drop">
                                         </div>
                                     </div>
                                 </form>
@@ -94,88 +94,17 @@
             </div>
         </section>
         <script>
-            const maintenanceSelector = document.getElementById('maintenance_select');
-            const plateSelector = document.getElementById('plate_number');
-
-            maintenanceSelector.addEventListener('click', () => {
-                const maintenance = document.querySelectorAll('[id*=joborder_number]');
-                maintenanceSelector.replaceChildren();
-                maintenanceSelector.add(new Option('New Maintenance', 'new'));
-
-                maintenance.forEach((maintenance, maintenance_index) => {
-                    if (maintenance.innerHTML.trim() !== '') {
-                        var option = new Option(`No. ${maintenance.innerHTML}`, maintenance_index);
-                        maintenanceSelector.add(option);
-                    }
-                })
-
-                plateArray = [];
-                vehicleData = new Request('/trucks/list_trucks', {method: 'GET'});
-                fetch(vehicleData).then(response => {
-                    response.json().then(data => {
-                        plateArray = data;
-                    
-                        plateArray.forEach((maintenance, maintenance_index) => {
-                            var option = new Option(maintenance['plate_number'], maintenance['plate_number']);
-                            plateSelector.add(option);
-
-                        })
-                    })                   
-                })
-            }, {once: true})
-
-            maintenanceSelector.addEventListener('click', () => {
-                switch (maintenanceSelector.value) {
-                    case 'new':
-                        document.getElementById('maintenanceForm').action = 'maintenance/add_maintenance';
-                        break;
-                    default:
-                        document.getElementById('maintenanceForm').action = 'maintenance/update_maintenance';
-                        break;
-                }
-            }, {once: false})
+            const formFields = [
+                'joborder_number', 'plate_number',
+                'date', 'description',
+                'notes', 'pms'
+            ];
             
-            maintenanceSelector.addEventListener('change', () => {
-                const formFields = ['joborder_number', 'plate_number', 'date', 'description', 'notes', 'pms'];
-                const selected = maintenanceSelector.value;
-                
-                formFields.forEach(field => {
-                    var formField = document.getElementById(field);
-
-                    if (selected == 'new') {
-                        formField.value = '';
-                    } else {
-                        formField.value = document.getElementById(`${field}-${selected - 1}`).innerHTML;
-                    }
-                })
-
-                maintenanceNumber = document.getElementById('joborder_number');
-                dropButton = document.getElementById('dropButton');
-                if (maintenanceSelector.value != 'new') {
-                    maintenanceNumber.readOnly = true;
-                    dropButton.disabled = false
-                } else {
-                    maintenanceNumber.readOnly = false;
-                    dropButton.disabled = true;
-                }
-            })
-
-            // plateSelector.addEventListener('click', () => {
-            //     plateArray = [];
-            //     vehicleData = new Request('/trucks/list_trucks', {method: 'GET'});
-            //     fetch(vehicleData).then(response => {
-            //         response.json().then(data => {
-            //             plateArray = data;
-                    
-            //             plateArray.forEach((maintenance, maintenance_index) => {
-            //                 var option = new Option(maintenance['plate_number'], maintenance['plate_number']);
-            //                 plateSelector.add(option);
-
-            //             })
-            //         })                   
-            //     })
-            // })
-
+            setFormAction('maintenanceSelect', 'maintenanceForm', 'maintenance/add_maintenance', 'maintenance/update_maintenance');
+            retrieveTableData('maintenance').then(() => {
+                setupSelectorOptions('maintenanceSelect', 'joborder_number', 'Maintenance');
+                handleSelectorChange('maintenanceSelect', formFields, 'joborder_number');
+            });
         </script>
     </body>
 </html>
