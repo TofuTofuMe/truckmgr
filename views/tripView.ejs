@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="index.css">
         <link rel="stylesheet" href="bulma.min.css">
         <script src="index.js"></script>
+        <script type="module" src="map.js"></script>
     </head>
     <body>
         <%- include('navbar.ejs') %>
@@ -111,6 +112,7 @@
                 </div>
             </div>
         </section>
+        <%- include('map.ejs') %>
         <script>
             const formFields = [
                 'trip_number', 'plate_number',
