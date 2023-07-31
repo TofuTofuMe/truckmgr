@@ -13,6 +13,7 @@ app.get('/', (req, res) =>  {
 });
 
 app.use(express.static('assets'));
+app.use(express.static('scripts'));
 app.use(express.static('db'));
 
 app.use('/trucks', require(routes + 'trucks'));
