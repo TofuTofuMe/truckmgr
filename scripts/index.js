@@ -1,8 +1,6 @@
-async function retrieveTableData(tableId) {
+async function fetchTableData(tableId) {
     return new Promise((resolve, reject) => {
-        var dataRow = 0;
-        const table = document.getElementById(tableId);
-        switch (table.id) {
+        switch (tableId) {
             case 'trucks':
                 request = new Request('/trucks/list_trucks', {method: 'GET'});
                 break;
@@ -13,37 +11,49 @@ async function retrieveTableData(tableId) {
                 request = new Request('/maintenance/list_maintenance', {method: 'GET'});
                 break;
             default:
-                {}
+                reject(new Error('Invalid table ID given'));
+                break;
         }
-        tableBody = document.querySelector('#table-body');
 
         fetch(request)
             .then((response) => response.json())
             .then((responseData) => {
-                if (responseData.length === 0) {
-                    responseData.push({
-                        blankmsg: 'No data available'
-                    })
-                }
-                responseData.forEach(entry => {
-                    const tableRow = document.createElement('tr');
-                    for (const data in entry) {
-                        const tableData = document.createElement('td');
-                        tableData.setAttribute('id', `${data}-${dataRow}`);
-                        tableData.textContent = entry[data];
-                        tableRow.appendChild(tableData);
-                    }
-                    tableRow.setAttribute('id', `entry-${dataRow}`);
-                    tableBody.appendChild(tableRow);
-                    dataRow++;
-                });
-                resolve();
+                resolve(responseData);
             })
-        .catch((error) => {
-            console.error('Error fetching table data: ', error);
-            reject(error);
-        });
+            .catch((error) => {
+                console.error('Error fetching data table: ', error);
+                reject(error);
+            });
     });
+}
+
+async function setupTable(tableId) {
+    try {
+        const responseData = await fetchTableData(tableId);
+        const tableBody = document.querySelector('#table-body');
+        var dataRow = 0;
+
+        if (responseData.length === 0) {
+            responseData.push({
+                blankmsg: 'No data available'
+            })
+        }
+
+        responseData.forEach(entry => {
+            const tableRow = document.createElement('tr');
+            for (const data in entry) {
+                const tableData = document.createElement('td');
+                tableData.setAttribute('id', `${data}-${dataRow}`);
+                tableData.textContent = entry[data];
+                tableRow.appendChild(tableData);
+            }
+            tableRow.setAttribute('id', `entry-${dataRow}`);
+            tableBody.appendChild(tableRow);
+            dataRow++;
+        });
+    } catch (error) {
+        console.error('Error setting up table: ', error);
+    }
 }
 
 function handleSelectorChange(selectorId, formFieldIds, referenceFieldId) {
