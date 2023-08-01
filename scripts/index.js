@@ -89,18 +89,14 @@ function handleSelectorChange(selectorId, formFieldIds, referenceFieldId) {
     }
 }
 
-function setupSelectorOptions(selectorId, referenceId, optionType) {
+async function setupSelectorOptions(selectorId, tableId, tableColumn) {
     try {
         const selector = document.getElementById(selectorId);
-        const items = document.querySelectorAll(`[id*=${referenceId}`);
-        selector.replaceChildren();
-        selector.add(new Option(`New ${optionType}`, 'new'));
+        const responseData = await fetchTableData(tableId);
 
-        items.forEach((item, itemIndex) => {
-            if (item.innerHTML.trim() !== '') {
-                var option = new Option(item.innerHTML, itemIndex);
-                selector.add(option);
-            }
+        responseData.forEach(entry => {
+            var option = new Option(entry[tableColumn], entry[tableColumn]);
+            selector.add(option);
         })
     } catch (error) {
         console.error('Error setting up selector: ', error);
