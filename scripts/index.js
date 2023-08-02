@@ -64,15 +64,13 @@ function handleSelectorChange(selectorId, formFieldIds, referenceFieldId) {
         const dropButton = document.getElementById('dropButton');
 
         selector.addEventListener('change', () => {
-            const selected = selector.value;
-
             formFieldIds.forEach(fieldId => {
                 const formField = document.getElementById(fieldId);
 
-                if (selected === 'new') {
+                if (selector.value === 'new') {
                     formField.value = '';
                 } else {
-                    formField.value = document.getElementById(`${fieldId}-${selected - 1}`).innerHTML;
+                    formField.value = document.getElementById(`${fieldId}-${selector.selectedIndex - 1}`).innerHTML;
                 }
             });
 
