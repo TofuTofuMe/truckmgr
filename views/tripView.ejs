@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="index.css">
-        <link rel="stylesheet" href="bulma.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
         <script src="https://unpkg.com/@googlemaps/js-api-loader@1.x/dist/index.min.js"></script>
         <script src="index.js"></script>
         <script type="module" src="map.js"></script>
@@ -123,11 +123,14 @@
                 'total_mileage'
             ];
 
+            fetchTableData('trips').then(() => {
+                setupTable('trips').then(() => {
+                    setupSelectorOptions('tripSelect', 'trips', 'trip_number');
+                    setupSelectorOptions('plate_number', 'trucks', 'plate_number');
+                    handleSelectorChange('tripSelect', formFields, 'trip_number');
                     setFormAction('tripSelect', 'tripForm', 'trips/add_trip', 'trips/update_trip');
-            retrieveTableData('trips').then(() => {
-                setupSelectorOptions('tripSelect', 'trip_number', 'Trip', 'plate_number');
-                handleSelectorChange('tripSelect', formFields, 'trip_number');
                 });
+            })
         </script>
     </body>
 </html>
