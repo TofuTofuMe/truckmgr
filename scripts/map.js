@@ -11,7 +11,7 @@ async function loadMapsAPI() {
     const loader = new google.maps.plugins.loader.Loader({
         apiKey: '',
         version: 'weekly',
-        libraries: ['maps', 'places', 'routes']
+        libraries: ['maps', 'geocoding', 'places', 'routes']
     });
 
     try {
@@ -124,6 +124,18 @@ async function setupMap(mapElementId, inputElementIds, markerPosition) {
             originInputField.classList.remove('is-hidden');
             mapModalType.innerHTML = 'Origin';
             originInputField.value = originFormInput.value;
+        
+            if (originFormInput.value) {
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({address: originFormInput.value}, (results, status) => {
+                    if (status === google.maps.GeocoderStatus.OK) {
+                        const newPosition = results[0].geometry.location;
+                        updateMarker(marker, newPosition);
+                        map.panTo(newPosition);
+                        originPosition = newPosition;
+                    }
+                })
+            }
         })
         
         destinationFormInput.addEventListener('focus', () => {
@@ -131,6 +143,18 @@ async function setupMap(mapElementId, inputElementIds, markerPosition) {
             destinationInputField.classList.remove('is-hidden');
             mapModalType.innerHTML = 'Destination';
             destinationInputField.value = destinationFormInput.value;
+        
+            if (destinationFormInput.value) {
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({address: destinationFormInput.value}, (results, status) => {
+                    if (status === google.maps.GeocoderStatus.OK) {
+                        const newPosition = results[0].geometry.location;
+                        updateMarker(marker, newPosition);
+                        map.panTo(newPosition);
+                        destinationPosition = newPosition;
+                    }
+                })
+            }
         })
     } catch (error) {
         console.error('Error setting up map: ', error);
