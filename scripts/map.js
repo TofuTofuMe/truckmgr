@@ -44,59 +44,98 @@ function addLocationAutocomplete(inputField) {
 	return autocomplete;
 }
 
+async function calculateDistance(originPosition, destinationPosition) {
+    try {
+        const matrixService = new google.maps.DistanceMatrixService();
+        const distanceMatrixRequest = {
+            origins: [originPosition],
+            destinations: [destinationPosition],
+            travelMode: google.maps.TravelMode.DRIVING,
+            unitSystem: google.maps.UnitSystem.METRIC
+        };
+
+        return new Promise((resolve, reject) => {
+            matrixService.getDistanceMatrix(distanceMatrixRequest, (response, status) => {
+                if (status === google.maps.DistanceMatrixStatus.OK) {
+                    const distance = response.rows[0].elements[0].distance.value;
+                    resolve(distance);
+                } else {
+                    reject(new Error('Error calculating distance: ', status));
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Error calculating distance: ', error);
+    }
+}
+
 async function setupMap(mapElementId, inputElementIds, markerPosition) {
     try {
         await loadMapsAPI();
 
-        const [originId, destinationId] = inputElementIds;
+        const [originId, destinationId, tripMileageId, totalMileageId] = inputElementIds;
         var originPosition;
         var destinationPosition;
 
         const mapElement = document.getElementById(mapElementId);
         const originElement = document.getElementById(originId);
         const destinationElement = document.getElementById(destinationId);
+        const tripMileageElement = document.getElementById(tripMileageId);
+        const totalMileageElement = document.getElementById(totalMileageId);
 
         const {map, marker} = createMap(mapElement, markerPosition);
 
         const originAutocomplete = addLocationAutocomplete(originElement);
         const destinationAutocomplete = addLocationAutocomplete(destinationElement);
 
-        originAutocomplete.addListener('place_changed', () => {
+        originAutocomplete.addListener('place_changed', async () => {
             const place = originAutocomplete.getPlace();
             if (place && place.geometry && place.geometry.location) {
                 const newPosition = place.geometry.location;
                 updateMarker(marker, newPosition);
                 map.panTo(newPosition);
                 originPosition = newPosition;
+
+                if (destinationPosition) {
+                    const distance = await calculateDistance(originPosition, destinationPosition);
+                    tripMileageElement.value = distance / 1000;
+                    totalMileageElement.value = (distance * 2) / 1000;
+                }
             }
         })
-        destinationAutocomplete.addListener('place_changed', () => {
+        destinationAutocomplete.addListener('place_changed', async () => {
             const place = destinationAutocomplete.getPlace();
             if (place && place.geometry && place.geometry.location) {
                 const newPosition = place.geometry.location;
                 updateMarker(marker, newPosition);
                 map.panTo(newPosition);
                 destinationPosition = newPosition;
+
+                if (originPosition) {
+                    const distance = await calculateDistance(originPosition, destinationPosition);
+                    tripMileageElement.value = distance / 1000;
+                    totalMileageElement.value = (distance * 2) / 1000;
+                }
             }
+        })
+
+        originFormInput.addEventListener('focus', () => {
+            mapModal.classList.add('is-active');
+            originInputField.classList.remove('is-hidden');
+            mapModalType.innerHTML = 'Origin';
+            originInputField.value = originFormInput.value;
+        })
+        
+        destinationFormInput.addEventListener('focus', () => {
+            mapModal.classList.add('is-active');
+            destinationInputField.classList.remove('is-hidden');
+            mapModalType.innerHTML = 'Destination';
+            destinationInputField.value = destinationFormInput.value;
         })
     } catch (error) {
         console.error('Error setting up map: ', error);
     }
 }
-
-originFormInput.addEventListener('focus', () => {
-    mapModal.classList.add('is-active');
-    originInputField.classList.remove('is-hidden');
-    mapModalType.innerHTML = 'Origin';
-    originInputField.value = originFormInput.value;
-})
-
-destinationFormInput.addEventListener('focus', () => {
-    mapModal.classList.add('is-active');
-    destinationInputField.classList.remove('is-hidden');
-    mapModalType.innerHTML = 'Destination';
-    destinationInputField.value = destinationFormInput.value;
-})
 
 mapModalSubmit.addEventListener('click', () => {
     mapModal.classList.remove('is-active');
@@ -119,4 +158,8 @@ mapModalClose.addEventListener('click', () => {
     destinationInputField.classList.add('is-hidden');
 })
 
-setupMap('map', ['originInputField', 'destinationInputField'], {lat: 0, lng: 0});
+setupMap('map',
+    ['originInputField', 'destinationInputField',
+    'trip_mileage', 'total_mileage'],
+    {lat: 0, lng: 0}
+);
